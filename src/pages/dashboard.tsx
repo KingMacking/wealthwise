@@ -58,7 +58,7 @@ export default function DashboardPage() {
           trend="neutral"
         />
         <StatCard
-          title="Dinero Restante"
+          title="Resultado del Mes"
           value={formatCurrency(data.netBalance)}
           icon={DollarSign}
           trend={data.netBalance >= 0 ? 'up' : 'down'}
