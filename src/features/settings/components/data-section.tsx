@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Download, Upload, Trash2, Database, Loader2, AlertTriangle, CheckCircle, User } from 'lucide-react'
+import { Download, Upload, Trash2, Loader2, AlertTriangle, CheckCircle, User } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 
@@ -23,9 +23,7 @@ export function DataSection() {
   const [clearOpen, setClearOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [importing, setImporting] = useState(false)
-  const [migrating, setMigrating] = useState(false)
-
-  const movementsCount = useQuery(api.movements.getAll)?.length ?? 0
+  const movementsCount = useQuery(api.movements.getAll)?.data?.length ?? 0
   const categoriesCount = useQuery(api.categories.getAll)?.length ?? 0
   const accountsCount = useQuery(api.accounts.getAll)?.length ?? 0
   const paymentMethodsCount = useQuery(api.paymentMethods.getAll)?.length ?? 0
@@ -35,7 +33,6 @@ export function DataSection() {
 
   const authInfo = useQuery(api.debug.whoami)
   const importAll = useMutation(api.exportImport.importAll)
-  const migrateData = useMutation(api.exportImport.migrateData)
   const deleteAllMovements = useMutation(api.movements.deleteAll)
   const deleteAllCategories = useMutation(api.categories.deleteAll)
   const deleteAllAccounts = useMutation(api.accounts.deleteAll)
@@ -111,17 +108,6 @@ export function DataSection() {
     e.target.value = ''
   }
 
-  const handleMigrateData = async () => {
-    setMigrating(true)
-    try {
-      const count = await migrateData()
-      toast.success(`${count} registros migrados correctamente`)
-    } catch {
-      toast.error('Error al migrar datos')
-    }
-    setMigrating(false)
-  }
-
   const handleClearAll = async () => {
     try {
       await Promise.all([
@@ -188,28 +174,20 @@ export function DataSection() {
               <Trash2 className="mr-2 h-4 w-4" />
               Limpiar datos
             </Button>
-            <Button variant="outline" size="sm" onClick={handleMigrateData} disabled={migrating}>
-              {migrating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
-              Migrar datos
-            </Button>
           </div>
 
           <Separator />
 
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <User className="h-3 w-3" />
-              <span>Autenticación</span>
-            </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <User className="h-3 w-3" />
+            <span>Autenticación</span>
             {authInfo === undefined ? (
-              <p className="text-xs text-muted-foreground">Verificando...</p>
+              <span className="text-muted-foreground">Verificando...</span>
             ) : (
-              <div className="space-y-1 text-xs">
-                <p className="text-emerald-500 flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3" />
-                  Autenticado
-                </p>
-              </div>
+              <span className="text-emerald-500 flex items-center gap-1">
+                <CheckCircle className="h-3 w-3" />
+                Autenticado
+              </span>
             )}
           </div>
         </CardContent>
