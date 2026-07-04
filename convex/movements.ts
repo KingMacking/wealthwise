@@ -69,8 +69,7 @@ export const getAll = query({
   args: { filters: v.optional(movementFiltersSchema) },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return { data: [], total: 0 }
-    const userId = identity.tokenIdentifier
+    const userId = identity?.tokenIdentifier
     let items = await ctx.db.query('movements').collect()
     items = items.filter((m) => matchesUserId(m.userId, userId))
 
@@ -123,10 +122,9 @@ export const getById = query({
   args: { id: v.id('movements') },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return null
     const doc = await ctx.db.get(args.id)
     if (!doc) return null
-    if (doc.userId !== undefined && doc.userId !== identity.tokenIdentifier) return null
+    if (!matchesUserId(doc.userId, identity?.tokenIdentifier)) return null
     return addId(doc)
   },
 })
@@ -135,8 +133,7 @@ export const getByDateRange = query({
   args: { startDate: v.string(), endDate: v.string() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return []
-    const userId = identity.tokenIdentifier
+    const userId = identity?.tokenIdentifier
     const all = await ctx.db.query('movements').collect()
     return all.filter((m) => matchesUserId(m.userId, userId) && m.date >= args.startDate && m.date <= args.endDate).map(addId)
   },
@@ -146,8 +143,7 @@ export const getByYear = query({
   args: { year: v.number() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return []
-    const userId = identity.tokenIdentifier
+    const userId = identity?.tokenIdentifier
     const all = await ctx.db.query('movements').collect()
     return all.filter((m) => {
       if (!matchesUserId(m.userId, userId)) return false

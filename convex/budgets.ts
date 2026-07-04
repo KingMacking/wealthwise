@@ -9,8 +9,7 @@ function addId<T extends { _id: unknown }>(doc: T): T & { id: string } {
 export const getAll = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return []
-    const userId = identity.tokenIdentifier
+    const userId = identity?.tokenIdentifier
     const items = await ctx.db.query('budgets').collect()
     return items.filter((a) => matchesUserId(a.userId, userId)).map(addId)
   },
@@ -20,8 +19,7 @@ export const getByMonth = query({
   args: { month: v.number(), year: v.number() },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return []
-    const userId = identity.tokenIdentifier
+    const userId = identity?.tokenIdentifier
     const items = await ctx.db
       .query('budgets')
       .withIndex('by_month_year', (q) => q.eq('month', args.month).eq('year', args.year))

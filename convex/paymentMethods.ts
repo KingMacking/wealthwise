@@ -9,8 +9,7 @@ function addId<T extends { _id: unknown }>(doc: T): T & { id: string } {
 export const getAll = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return []
-    const userId = identity.tokenIdentifier
+    const userId = identity?.tokenIdentifier
     const items = await ctx.db.query('paymentMethods').collect()
     return items.filter((a) => matchesUserId(a.userId, userId)).map(addId)
   },
@@ -20,10 +19,9 @@ export const getById = query({
   args: { id: v.id('paymentMethods') },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return null
     const doc = await ctx.db.get(args.id)
     if (!doc) return null
-    if (!matchesUserId(doc.userId, identity.tokenIdentifier)) return null
+    if (!matchesUserId(doc.userId, identity?.tokenIdentifier)) return null
     return addId(doc)
   },
 })

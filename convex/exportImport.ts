@@ -8,8 +8,7 @@ const subcategorySchema = v.object({ id: v.string(), name: v.string() })
 export const getAllData = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity()
-    if (!identity) return { movements: [], categories: [], accounts: [], paymentMethods: [], budgets: [], creditCards: [], goals: [] }
-    const userId = identity.tokenIdentifier
+    const userId = identity?.tokenIdentifier
     const [movements, categories, accounts, paymentMethods, budgets, creditCards, goals] = await Promise.all([
       ctx.db.query('movements').collect(),
       ctx.db.query('categories').collect(),
