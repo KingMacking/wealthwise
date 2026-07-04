@@ -1,0 +1,5 @@
+export { useMovements } from './hooks/use-movements'
+export { MovementForm } from './components/movement-form'
+export { MovementFilters } from './components/movement-filters'
+export { MovementsTable } from './components/movements-table'
+export { DeleteConfirmDialog } from './components/delete-confirm-dialog'

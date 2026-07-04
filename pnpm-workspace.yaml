@@ -1,0 +1,5 @@
+allowBuilds:
+  '@clerk/shared': true
+  esbuild: true
+onlyBuiltDependencies:
+  - '@clerk/shared'
