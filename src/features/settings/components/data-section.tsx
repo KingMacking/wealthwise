@@ -35,6 +35,7 @@ export function DataSection() {
   const creditCardsCount = useQuery(api.creditCards.getAll)?.length ?? 0
   const goalsCount = useQuery(api.goals.getAll)?.length ?? 0
 
+  const authInfo = useQuery(api.debug.whoami)
   const importAll = useMutation(api.exportImport.importAll)
   const migrateData = useMutation(api.exportImport.migrateData)
   const deleteAllMovements = useMutation(api.movements.deleteAll)
