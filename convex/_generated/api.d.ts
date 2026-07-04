@@ -12,6 +12,7 @@ import type * as accounts from "../accounts.js";
 import type * as budgets from "../budgets.js";
 import type * as categories from "../categories.js";
 import type * as creditCards from "../creditCards.js";
+import type * as debug from "../debug.js";
 import type * as exportImport from "../exportImport.js";
 import type * as goals from "../goals.js";
 import type * as movements from "../movements.js";
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   budgets: typeof budgets;
   categories: typeof categories;
   creditCards: typeof creditCards;
+  debug: typeof debug;
   exportImport: typeof exportImport;
   goals: typeof goals;
   movements: typeof movements;

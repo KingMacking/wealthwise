@@ -184,16 +184,23 @@ export const importAll = mutation({
 })
 
 export const migrateData = mutation({
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity()
-    if (!identity) throw new Error('Unauthenticated')
-    const userId = identity.tokenIdentifier
+  args: {
+    manualUserId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    let userId = args.manualUserId
+    if (!userId) {
+      const identity = await ctx.auth.getUserIdentity()
+      if (!identity) return -1
+      userId = identity.tokenIdentifier
+    }
+
     let migrated = 0
 
     const allAccounts = await ctx.db.query('accounts').collect()
     for (const item of allAccounts) {
       if (!item.userId) {
-        await ctx.db.patch(item._id, { userId })
+        await ctx.db.patch(item._id, { userId } as any)
         migrated++
       }
     }
@@ -201,7 +208,7 @@ export const migrateData = mutation({
     const allCategories = await ctx.db.query('categories').collect()
     for (const item of allCategories) {
       if (!item.userId) {
-        await ctx.db.patch(item._id, { userId })
+        await ctx.db.patch(item._id, { userId } as any)
         migrated++
       }
     }
@@ -209,7 +216,7 @@ export const migrateData = mutation({
     const allPaymentMethods = await ctx.db.query('paymentMethods').collect()
     for (const item of allPaymentMethods) {
       if (!item.userId) {
-        await ctx.db.patch(item._id, { userId })
+        await ctx.db.patch(item._id, { userId } as any)
         migrated++
       }
     }
@@ -217,7 +224,7 @@ export const migrateData = mutation({
     const allBudgets = await ctx.db.query('budgets').collect()
     for (const item of allBudgets) {
       if (!item.userId) {
-        await ctx.db.patch(item._id, { userId })
+        await ctx.db.patch(item._id, { userId } as any)
         migrated++
       }
     }
@@ -225,7 +232,7 @@ export const migrateData = mutation({
     const allCreditCards = await ctx.db.query('creditCards').collect()
     for (const item of allCreditCards) {
       if (!item.userId) {
-        await ctx.db.patch(item._id, { userId })
+        await ctx.db.patch(item._id, { userId } as any)
         migrated++
       }
     }
@@ -233,7 +240,7 @@ export const migrateData = mutation({
     const allGoals = await ctx.db.query('goals').collect()
     for (const item of allGoals) {
       if (!item.userId) {
-        await ctx.db.patch(item._id, { userId })
+        await ctx.db.patch(item._id, { userId } as any)
         migrated++
       }
     }
@@ -241,7 +248,7 @@ export const migrateData = mutation({
     const allMovements = await ctx.db.query('movements').collect()
     for (const item of allMovements) {
       if (!item.userId) {
-        await ctx.db.patch(item._id, { userId })
+        await ctx.db.patch(item._id, { userId } as any)
         migrated++
       }
     }
