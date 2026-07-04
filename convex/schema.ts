@@ -8,7 +8,8 @@ export default defineSchema({
     icon: v.string(),
     color: v.string(),
     type: v.string(),
-  }),
+    userId: v.optional(v.string()),
+  }).index('by_userId', ['userId']),
 
   categories: defineTable({
     name: v.string(),
@@ -20,12 +21,14 @@ export default defineSchema({
     ),
     order: v.number(),
     active: v.boolean(),
-  }),
+    userId: v.optional(v.string()),
+  }).index('by_userId', ['userId']),
 
   paymentMethods: defineTable({
     name: v.string(),
     icon: v.string(),
-  }),
+    userId: v.optional(v.string()),
+  }).index('by_userId', ['userId']),
 
   budgets: defineTable({
     categoryId: v.id('categories'),
@@ -33,7 +36,8 @@ export default defineSchema({
     month: v.number(),
     year: v.number(),
     amount: v.number(),
-  }).index('by_month_year', ['month', 'year']),
+    userId: v.optional(v.string()),
+  }).index('by_month_year', ['month', 'year']).index('by_userId', ['userId']),
 
   creditCards: defineTable({
     name: v.string(),
@@ -43,7 +47,8 @@ export default defineSchema({
     balance: v.number(),
     currentConsumption: v.number(),
     color: v.string(),
-  }),
+    userId: v.optional(v.string()),
+  }).index('by_userId', ['userId']),
 
   goals: defineTable({
     name: v.string(),
@@ -52,7 +57,8 @@ export default defineSchema({
     targetDate: v.optional(v.string()),
     icon: v.string(),
     color: v.string(),
-  }),
+    userId: v.optional(v.string()),
+  }).index('by_userId', ['userId']),
 
   movements: defineTable({
     date: v.string(),
@@ -70,10 +76,12 @@ export default defineSchema({
     color: v.string(),
     icon: v.string(),
     status: v.string(),
+    userId: v.optional(v.string()),
   })
     .index('by_date', ['date'])
     .index('by_account', ['accountId'])
     .index('by_category', ['categoryId'])
     .index('by_payment_method', ['paymentMethodId'])
-    .index('by_type_date', ['type', 'date']),
+    .index('by_type_date', ['type', 'date'])
+    .index('by_userId', ['userId']),
 })

@@ -7,16 +7,23 @@ function addId<T extends { _id: unknown }>(doc: T): T & { id: string } {
 
 export const getAll = query({
   handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return []
+    const userId = identity.tokenIdentifier
     const items = await ctx.db.query('paymentMethods').collect()
-    return items.map(addId)
+    return items.filter((a) => a.userId === undefined || a.userId === userId).map(addId)
   },
 })
 
 export const getById = query({
   args: { id: v.id('paymentMethods') },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return null
     const doc = await ctx.db.get(args.id)
-    return doc ? addId(doc) : null
+    if (!doc) return null
+    if (doc.userId !== undefined && doc.userId !== identity.tokenIdentifier) return null
+    return addId(doc)
   },
 })
 
@@ -26,9 +33,12 @@ export const create = mutation({
     icon: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error('Unauthenticated')
     return await ctx.db.insert('paymentMethods', {
       name: args.name,
       icon: args.icon ?? 'CreditCard',
+      userId: identity.tokenIdentifier,
     })
   },
 })
@@ -40,6 +50,11 @@ export const update = mutation({
     icon: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error('Unauthenticated')
+    const existing = await ctx.db.get(args.id)
+    if (!existing) throw new Error('Not found')
+    if (existing.userId !== undefined && existing.userId !== identity.tokenIdentifier) throw new Error('Not found')
     const { id, ...fields } = args
     await ctx.db.patch(id, fields)
   },
@@ -48,15 +63,25 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id('paymentMethods') },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error('Unauthenticated')
+    const existing = await ctx.db.get(args.id)
+    if (!existing) throw new Error('Not found')
+    if (existing.userId !== undefined && existing.userId !== identity.tokenIdentifier) throw new Error('Not found')
     await ctx.db.delete(args.id)
   },
 })
 
 export const deleteAll = mutation({
   handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error('Unauthenticated')
+    const userId = identity.tokenIdentifier
     const items = await ctx.db.query('paymentMethods').collect()
     for (const item of items) {
-      await ctx.db.delete(item._id)
+      if (item.userId === undefined || item.userId === userId) {
+        await ctx.db.delete(item._id)
+      }
     }
   },
 })

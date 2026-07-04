@@ -6,6 +6,9 @@ const subcategorySchema = v.object({ id: v.string(), name: v.string() })
 
 export const getAllData = query({
   handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return { movements: [], categories: [], accounts: [], paymentMethods: [], budgets: [], creditCards: [], goals: [] }
+    const userId = identity.tokenIdentifier
     const [movements, categories, accounts, paymentMethods, budgets, creditCards, goals] = await Promise.all([
       ctx.db.query('movements').collect(),
       ctx.db.query('categories').collect(),
@@ -15,7 +18,16 @@ export const getAllData = query({
       ctx.db.query('creditCards').collect(),
       ctx.db.query('goals').collect(),
     ])
-    return { movements, categories, accounts, paymentMethods, budgets, creditCards, goals }
+    const filter = <T extends { userId?: string }>(items: T[]) => items.filter((a) => a.userId === undefined || a.userId === userId)
+    return {
+      movements: filter(movements),
+      categories: filter(categories),
+      accounts: filter(accounts),
+      paymentMethods: filter(paymentMethods),
+      budgets: filter(budgets),
+      creditCards: filter(creditCards),
+      goals: filter(goals),
+    }
   },
 })
 
@@ -83,6 +95,9 @@ export const importAll = mutation({
     })),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error('Unauthenticated')
+    const userId = identity.tokenIdentifier
     for (const item of args.categories) {
       await ctx.db.insert('categories', {
         name: item.name,
@@ -92,6 +107,7 @@ export const importAll = mutation({
         subcategories: item.subcategories ?? [],
         order: item.order ?? 0,
         active: item.active ?? true,
+        userId,
       })
     }
     for (const item of args.accounts) {
@@ -101,12 +117,14 @@ export const importAll = mutation({
         icon: item.icon ?? 'Landmark',
         color: item.color ?? '#3b82f6',
         type: item.type ?? 'checking',
+        userId,
       })
     }
     for (const item of args.paymentMethods) {
       await ctx.db.insert('paymentMethods', {
         name: item.name,
         icon: item.icon ?? 'CreditCard',
+        userId,
       })
     }
     for (const item of args.movements) {
@@ -126,6 +144,7 @@ export const importAll = mutation({
         color: item.color ?? '#3b82f6',
         icon: item.icon ?? 'ArrowRight',
         status: item.status ?? 'confirmed',
+        userId,
       })
     }
     for (const item of args.budgets) {
@@ -135,6 +154,7 @@ export const importAll = mutation({
         month: item.month,
         year: item.year,
         amount: item.amount,
+        userId,
       })
     }
     for (const item of args.creditCards) {
@@ -146,6 +166,7 @@ export const importAll = mutation({
         balance: item.balance ?? 0,
         currentConsumption: item.currentConsumption ?? 0,
         color: item.color ?? '#3b82f6',
+        userId,
       })
     }
     for (const item of args.goals) {
@@ -156,7 +177,28 @@ export const importAll = mutation({
         targetDate: item.targetDate,
         icon: item.icon ?? 'Target',
         color: item.color ?? '#3b82f6',
+        userId,
       })
     }
+  },
+})
+
+export const migrateData = mutation({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error('Unauthenticated')
+    const userId = identity.tokenIdentifier
+    const tables = ['accounts', 'categories', 'paymentMethods', 'budgets', 'creditCards', 'goals', 'movements'] as const
+    let migrated = 0
+    for (const table of tables) {
+      const items = await ctx.db.query(table).collect()
+      for (const item of items) {
+        if (item.userId === undefined) {
+          await ctx.db.patch(item._id, { userId } as any)
+          migrated++
+        }
+      }
+    }
+    return migrated
   },
 })

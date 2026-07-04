@@ -23,6 +23,7 @@ export function DataSection() {
   const [clearOpen, setClearOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [importing, setImporting] = useState(false)
+  const [migrating, setMigrating] = useState(false)
 
   const movementsCount = useQuery(api.movements.getAll)?.length ?? 0
   const categoriesCount = useQuery(api.categories.getAll)?.length ?? 0
@@ -33,6 +34,7 @@ export function DataSection() {
   const goalsCount = useQuery(api.goals.getAll)?.length ?? 0
 
   const importAll = useMutation(api.exportImport.importAll)
+  const migrateData = useMutation(api.exportImport.migrateData)
   const deleteAllMovements = useMutation(api.movements.deleteAll)
   const deleteAllCategories = useMutation(api.categories.deleteAll)
   const deleteAllAccounts = useMutation(api.accounts.deleteAll)
@@ -108,6 +110,17 @@ export function DataSection() {
     e.target.value = ''
   }
 
+  const handleMigrateData = async () => {
+    setMigrating(true)
+    try {
+      const count = await migrateData()
+      toast.success(`${count} registros migrados correctamente`)
+    } catch {
+      toast.error('Error al migrar datos')
+    }
+    setMigrating(false)
+  }
+
   const handleClearAll = async () => {
     try {
       await Promise.all([
@@ -173,6 +186,10 @@ export function DataSection() {
             <Button variant="outline" size="sm" className="text-destructive" onClick={() => setClearOpen(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Limpiar datos
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleMigrateData} disabled={migrating}>
+              {migrating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
+              Migrar datos
             </Button>
           </div>
         </CardContent>
