@@ -64,6 +64,11 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const allAccounts = useQuery(api.accounts.getAll) ?? []
   const allPaymentMethods = useQuery(api.paymentMethods.getAll) ?? []
 
+  function handleSelect(href: string) {
+    navigate(href)
+    onClose()
+  }
+
   return (
     <CommandDialog open={open} onOpenChange={onClose}>
       <CommandInput placeholder="Buscá páginas, movimientos, categorías..." />
