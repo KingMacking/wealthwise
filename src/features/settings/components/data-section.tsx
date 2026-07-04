@@ -3,7 +3,6 @@ import { useQuery, useMutation, useConvex } from 'convex/react'
 import { api } from '@convex/api'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import {
   AlertDialog,
@@ -15,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Download, Upload, Trash2, Database, Loader2, AlertTriangle, Info, User } from 'lucide-react'
+import { Download, Upload, Trash2, Database, Loader2, AlertTriangle, CheckCircle, User } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 
@@ -25,7 +24,6 @@ export function DataSection() {
   const [exporting, setExporting] = useState(false)
   const [importing, setImporting] = useState(false)
   const [migrating, setMigrating] = useState(false)
-  const [manualUserId, setManualUserId] = useState('')
 
   const movementsCount = useQuery(api.movements.getAll)?.length ?? 0
   const categoriesCount = useQuery(api.categories.getAll)?.length ?? 0
@@ -116,7 +114,7 @@ export function DataSection() {
   const handleMigrateData = async () => {
     setMigrating(true)
     try {
-      const count = await migrateData({ manualUserId: manualUserId || undefined })
+      const count = await migrateData()
       toast.success(`${count} registros migrados correctamente`)
     } catch {
       toast.error('Error al migrar datos')
@@ -205,22 +203,12 @@ export function DataSection() {
             </div>
             {authInfo === undefined ? (
               <p className="text-xs text-muted-foreground">Verificando...</p>
-            ) : authInfo.authenticated ? (
-              <div className="space-y-1 text-xs">
-                <p className="text-emerald-500">✓ Autenticado</p>
-                <p>userId: <code className="bg-accent px-1 rounded">{authInfo.tokenIdentifier}</code></p>
-              </div>
             ) : (
-              <div className="space-y-2">
-                <p className="text-amber-500 text-xs">✗ No autenticado en Convex</p>
-                <div className="flex gap-2 items-center">
-                  <Input
-                    placeholder="Pegá tu userId manual..."
-                    value={manualUserId}
-                    onChange={(e) => setManualUserId(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
+              <div className="space-y-1 text-xs">
+                <p className="text-emerald-500 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Autenticado
+                </p>
               </div>
             )}
           </div>
