@@ -188,17 +188,64 @@ export const migrateData = mutation({
     const identity = await ctx.auth.getUserIdentity()
     if (!identity) throw new Error('Unauthenticated')
     const userId = identity.tokenIdentifier
-    const tables = ['accounts', 'categories', 'paymentMethods', 'budgets', 'creditCards', 'goals', 'movements'] as const
     let migrated = 0
-    for (const table of tables) {
-      const items = await ctx.db.query(table).collect()
-      for (const item of items) {
-        if (item.userId === undefined) {
-          await ctx.db.patch(item._id, { userId } as any)
-          migrated++
-        }
+
+    const allAccounts = await ctx.db.query('accounts').collect()
+    for (const item of allAccounts) {
+      if (!item.userId) {
+        await ctx.db.patch(item._id, { userId })
+        migrated++
       }
     }
+
+    const allCategories = await ctx.db.query('categories').collect()
+    for (const item of allCategories) {
+      if (!item.userId) {
+        await ctx.db.patch(item._id, { userId })
+        migrated++
+      }
+    }
+
+    const allPaymentMethods = await ctx.db.query('paymentMethods').collect()
+    for (const item of allPaymentMethods) {
+      if (!item.userId) {
+        await ctx.db.patch(item._id, { userId })
+        migrated++
+      }
+    }
+
+    const allBudgets = await ctx.db.query('budgets').collect()
+    for (const item of allBudgets) {
+      if (!item.userId) {
+        await ctx.db.patch(item._id, { userId })
+        migrated++
+      }
+    }
+
+    const allCreditCards = await ctx.db.query('creditCards').collect()
+    for (const item of allCreditCards) {
+      if (!item.userId) {
+        await ctx.db.patch(item._id, { userId })
+        migrated++
+      }
+    }
+
+    const allGoals = await ctx.db.query('goals').collect()
+    for (const item of allGoals) {
+      if (!item.userId) {
+        await ctx.db.patch(item._id, { userId })
+        migrated++
+      }
+    }
+
+    const allMovements = await ctx.db.query('movements').collect()
+    for (const item of allMovements) {
+      if (!item.userId) {
+        await ctx.db.patch(item._id, { userId })
+        migrated++
+      }
+    }
+
     return migrated
   },
 })
