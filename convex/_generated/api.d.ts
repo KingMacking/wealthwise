@@ -17,6 +17,7 @@ import type * as exportImport from "../exportImport.js";
 import type * as goals from "../goals.js";
 import type * as movements from "../movements.js";
 import type * as paymentMethods from "../paymentMethods.js";
+import type * as userId from "../userId.js";
 
 import type {
   ApiFromModules,
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   goals: typeof goals;
   movements: typeof movements;
   paymentMethods: typeof paymentMethods;
+  userId: typeof userId;
 }>;
 
 /**

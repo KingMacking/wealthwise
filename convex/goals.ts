@@ -1,5 +1,6 @@
 import { v } from 'convex/values'
 import { query, mutation } from './_generated/server'
+import { matchesUserId } from './userId'
 
 function addId<T extends { _id: unknown }>(doc: T): T & { id: string } {
   return { ...doc, id: doc._id as string }
@@ -11,7 +12,7 @@ export const getAll = query({
     if (!identity) return []
     const userId = identity.tokenIdentifier
     const items = await ctx.db.query('goals').collect()
-    return items.filter((a) => a.userId === undefined || a.userId === userId).map(addId)
+    return items.filter((a) => matchesUserId(a.userId, userId)).map(addId)
   },
 })
 
@@ -22,7 +23,7 @@ export const getById = query({
     if (!identity) return null
     const doc = await ctx.db.get(args.id)
     if (!doc) return null
-    if (doc.userId !== undefined && doc.userId !== identity.tokenIdentifier) return null
+    if (!matchesUserId(doc.userId, identity.tokenIdentifier)) return null
     return addId(doc)
   },
 })
@@ -66,7 +67,7 @@ export const update = mutation({
     if (!identity) throw new Error('Unauthenticated')
     const existing = await ctx.db.get(args.id)
     if (!existing) throw new Error('Not found')
-    if (existing.userId !== undefined && existing.userId !== identity.tokenIdentifier) throw new Error('Not found')
+    if (!matchesUserId(existing.userId, identity.tokenIdentifier)) throw new Error('Not found')
     const { id, ...fields } = args
     await ctx.db.patch(id, fields)
   },
@@ -82,7 +83,7 @@ export const deposit = mutation({
     if (!identity) throw new Error('Unauthenticated')
     const goal = await ctx.db.get(args.id)
     if (!goal) throw new Error('Goal not found')
-    if (goal.userId !== undefined && goal.userId !== identity.tokenIdentifier) throw new Error('Goal not found')
+    if (!matchesUserId(goal.userId, identity.tokenIdentifier)) throw new Error('Goal not found')
     await ctx.db.patch(args.id, {
       currentAmount: goal.currentAmount + args.amount,
     })
@@ -96,7 +97,7 @@ export const remove = mutation({
     if (!identity) throw new Error('Unauthenticated')
     const existing = await ctx.db.get(args.id)
     if (!existing) throw new Error('Not found')
-    if (existing.userId !== undefined && existing.userId !== identity.tokenIdentifier) throw new Error('Not found')
+    if (!matchesUserId(existing.userId, identity.tokenIdentifier)) throw new Error('Not found')
     await ctx.db.delete(args.id)
   },
 })
@@ -108,7 +109,7 @@ export const deleteAll = mutation({
     const userId = identity.tokenIdentifier
     const items = await ctx.db.query('goals').collect()
     for (const item of items) {
-      if (item.userId === undefined || item.userId === userId) {
+      if (matchesUserId(item.userId, userId)) {
         await ctx.db.delete(item._id)
       }
     }

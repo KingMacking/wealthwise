@@ -1,6 +1,7 @@
 import { v } from 'convex/values'
 import { query, mutation } from './_generated/server'
 import type { Id } from './_generated/dataModel'
+import { matchesUserId } from './userId'
 
 const subcategorySchema = v.object({ id: v.string(), name: v.string() })
 
@@ -18,7 +19,7 @@ export const getAllData = query({
       ctx.db.query('creditCards').collect(),
       ctx.db.query('goals').collect(),
     ])
-    const filter = <T extends { userId?: string }>(items: T[]) => items.filter((a) => a.userId === undefined || a.userId === userId)
+    const filter = <T extends { userId?: string }>(items: T[]) => items.filter((a) => matchesUserId(a.userId, userId))
     return {
       movements: filter(movements),
       categories: filter(categories),

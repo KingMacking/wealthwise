@@ -1,6 +1,7 @@
 import { v } from 'convex/values'
 import { query, mutation } from './_generated/server'
 import type { Doc, Id } from './_generated/dataModel'
+import { matchesUserId } from './userId'
 
 function addId<T extends { _id: unknown }>(doc: T): T & { id: string } {
   return { ...doc, id: doc._id as string }
@@ -71,7 +72,7 @@ export const getAll = query({
     if (!identity) return { data: [], total: 0 }
     const userId = identity.tokenIdentifier
     let items = await ctx.db.query('movements').collect()
-    items = items.filter((m) => m.userId === undefined || m.userId === userId)
+    items = items.filter((m) => matchesUserId(m.userId, userId))
 
     const f = args.filters
     if (!f) return { data: items.map(addId), total: items.length }
@@ -137,7 +138,7 @@ export const getByDateRange = query({
     if (!identity) return []
     const userId = identity.tokenIdentifier
     const all = await ctx.db.query('movements').collect()
-    return all.filter((m) => (m.userId === undefined || m.userId === userId) && m.date >= args.startDate && m.date <= args.endDate).map(addId)
+    return all.filter((m) => matchesUserId(m.userId, userId) && m.date >= args.startDate && m.date <= args.endDate).map(addId)
   },
 })
 
@@ -149,7 +150,7 @@ export const getByYear = query({
     const userId = identity.tokenIdentifier
     const all = await ctx.db.query('movements').collect()
     return all.filter((m) => {
-      if (m.userId !== undefined && m.userId !== userId) return false
+      if (!matchesUserId(m.userId, userId)) return false
       const d = new Date(m.date)
       return d.getFullYear() === args.year
     }).map(addId)
@@ -230,7 +231,7 @@ export const update = mutation({
     if (!identity) throw new Error('Unauthenticated')
     const old = await ctx.db.get(args.id)
     if (!old) throw new Error('Not found')
-    if (old.userId !== undefined && old.userId !== identity.tokenIdentifier) throw new Error('Not found')
+    if (!matchesUserId(old.userId, identity.tokenIdentifier)) throw new Error('Not found')
 
     await revertMovementEffect(ctx, old)
 
@@ -251,7 +252,7 @@ export const remove = mutation({
     if (!identity) throw new Error('Unauthenticated')
     const movement = await ctx.db.get(args.id)
     if (!movement) throw new Error('Not found')
-    if (movement.userId !== undefined && movement.userId !== identity.tokenIdentifier) throw new Error('Not found')
+    if (!matchesUserId(movement.userId, identity.tokenIdentifier)) throw new Error('Not found')
 
     await revertMovementEffect(ctx, movement)
     await ctx.db.delete(args.id)
@@ -265,7 +266,7 @@ export const deleteMany = mutation({
     if (!identity) throw new Error('Unauthenticated')
     for (const id of args.ids) {
       const movement = await ctx.db.get(id)
-      if (movement && (movement.userId === undefined || movement.userId === identity.tokenIdentifier)) {
+      if (movement && matchesUserId(movement.userId, identity.tokenIdentifier)) {
         await revertMovementEffect(ctx, movement)
         await ctx.db.delete(id)
       }
@@ -280,7 +281,7 @@ export const deleteAll = mutation({
     const userId = identity.tokenIdentifier
     const items = await ctx.db.query('movements').collect()
     for (const item of items) {
-      if (item.userId === undefined || item.userId === userId) {
+      if (matchesUserId(item.userId, userId)) {
         await revertMovementEffect(ctx, item)
         await ctx.db.delete(item._id)
       }
