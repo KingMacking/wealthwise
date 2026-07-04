@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Download, Upload, Trash2, Loader2, AlertTriangle, CheckCircle, User } from 'lucide-react'
+import { Download, Upload, Trash2, Database, Loader2, AlertTriangle, CheckCircle, User } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 
