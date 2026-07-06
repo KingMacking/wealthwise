@@ -72,7 +72,7 @@ export default function ReportsPage() {
             <CardTitle className="text-xs font-medium text-muted-foreground">Ingresos</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold text-emerald-500">{formatCurrency(totalIncomes)}</p>
+            <p className="text-base sm:text-xl font-semibold text-emerald-500">{formatCurrency(totalIncomes)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -80,7 +80,7 @@ export default function ReportsPage() {
             <CardTitle className="text-xs font-medium text-muted-foreground">Gastos</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold text-red-500">{formatCurrency(totalExpenses)}</p>
+            <p className="text-base sm:text-xl font-semibold text-red-500">{formatCurrency(totalExpenses)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -88,7 +88,7 @@ export default function ReportsPage() {
             <CardTitle className="text-xs font-medium text-muted-foreground">Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-xl font-semibold ${netBalance >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+            <p className={`text-base sm:text-xl font-semibold ${netBalance >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
               {formatCurrency(netBalance)}
             </p>
           </CardContent>
@@ -98,7 +98,7 @@ export default function ReportsPage() {
             <CardTitle className="text-xs font-medium text-muted-foreground">Ahorro</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-xl font-semibold ${savingsRate >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+            <p className={`text-base sm:text-xl font-semibold ${savingsRate >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
               {savingsRate.toFixed(0)}%
             </p>
           </CardContent>

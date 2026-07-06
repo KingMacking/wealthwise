@@ -40,7 +40,7 @@ export function GoalCard({ goal, onEdit, onDeposit, onDelete }: GoalCardProps) {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1">
+          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity -mt-1 -mr-1">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDeposit(goal.id)} title="Agregar ahorro">
               <CircleDollarSign className="h-3.5 w-3.5" />
             </Button>

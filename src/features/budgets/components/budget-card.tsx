@@ -27,7 +27,7 @@ export function BudgetCard({ budget, category, onEdit, onDelete }: BudgetCardPro
             <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: color }} />
             <span className="text-sm font-medium leading-none">{category?.name ?? 'Sin categoría'}</span>
           </div>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(budget.id)}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>

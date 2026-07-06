@@ -25,7 +25,7 @@ export function AccountCard({ account, onEdit, onDelete }: AccountCardProps) {
           >
             <Icon className="h-5 w-5" style={{ color }} />
           </div>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1">
+          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity -mt-1 -mr-1">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(account.id)}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>

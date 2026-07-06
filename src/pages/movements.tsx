@@ -76,7 +76,7 @@ export default function MovementsPage() {
             Todos tus movimientos financieros
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {state.selectedIds.length > 0 && (
             <Button variant="destructive" size="sm" onClick={deleteSelected}>
               <Trash2 className="mr-2 h-4 w-4" />
