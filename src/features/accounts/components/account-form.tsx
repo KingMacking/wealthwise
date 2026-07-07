@@ -19,8 +19,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { accountFormSchema, type AccountFormValues } from '../schemas/account.schema'
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_ICONS, ACCOUNT_TYPE_LABELS, ACCOUNT_COLORS } from '../constants'
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_ICONS, ACCOUNT_TYPE_LABELS } from '../constants'
 import type { Account } from '@/types'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FormSubmitHandler = (values: any) => void
@@ -121,21 +122,7 @@ export function AccountForm({
 
           <div className="space-y-2">
             <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
-              {ACCOUNT_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={`h-7 w-7 rounded-full transition-all duration-200 ${
-                    watchColor === color
-                      ? 'ring-2 ring-offset-2 ring-offset-background scale-110'
-                      : 'hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setValue('color', color)}
-                />
-              ))}
-            </div>
+            <ColorPicker value={watchColor} onChange={(color) => setValue('color', color)} />
           </div>
 
           <div className="space-y-2">

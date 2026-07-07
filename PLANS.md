@@ -20,6 +20,10 @@ Selector de país (ARG / USA) que afecta:
 
 Cada widget de "Tarjetas de resumen" (8 opciones) e "Indicadores" (9 opciones) se puede prender/apagar y reordenar por drag & drop. Además se pueden ocultar las secciones de "Gráficos" y "Movimientos recientes".
 
+## Color picker en lugar de colores predefinidos
+
+Reemplazar las paletas de colores fijos (círculos de colores) en formularios de cuentas, categorías, tarjetas de crédito y goals por un color picker nativo (`<input type="color">`) o un picker más completo (rueda cromática, hex input, etc.).
+
 ## Registro vía WhatsApp Bot
 
 Bot de WhatsApp (o similar) donde el usuario manda un gasto y se registra automáticamente.

@@ -15,8 +15,9 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Loader2, Plus, X, GripVertical } from 'lucide-react'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { categoryFormSchema, type CategoryFormValues } from '../schemas/category.schema'
-import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants'
+import { CATEGORY_ICONS } from '../constants'
 import type { Category } from '@/types'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -113,21 +114,7 @@ export function CategoryForm({
 
           <div className="space-y-2">
             <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORY_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={`h-7 w-7 rounded-full transition-all duration-200 ${
-                    watchColor === color
-                      ? 'ring-2 ring-offset-2 ring-offset-background scale-110'
-                      : 'hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setValue('color', color)}
-                />
-              ))}
-            </div>
+            <ColorPicker value={watchColor} onChange={(color) => setValue('color', color)} />
           </div>
 
           <div className="space-y-2">

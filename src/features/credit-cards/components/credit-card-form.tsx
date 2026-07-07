@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2, CreditCard as CreditCardIcon } from 'lucide-react'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { creditCardFormSchema, type CreditCardFormValues } from '../schemas/credit-card.schema'
-import { CARD_COLORS } from '../constants'
 import type { CreditCard } from '@/types'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FormSubmitHandler = (values: any) => void
@@ -97,21 +97,7 @@ export function CreditCardForm({
 
           <div className="space-y-2">
             <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
-              {CARD_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={`h-7 w-7 rounded-full transition-all duration-200 ${
-                    watchColor === color
-                      ? 'ring-2 ring-offset-2 ring-offset-background scale-110'
-                      : 'hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setValue('color', color)}
-                />
-              ))}
-            </div>
+            <ColorPicker value={watchColor} onChange={(color) => setValue('color', color)} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
