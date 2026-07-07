@@ -116,7 +116,7 @@ export function MovementForm({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Fecha</Label>
               <Input id="date" type="date" {...register('date')} />
@@ -154,7 +154,7 @@ export function MovementForm({
             {errors.amount && <p className="text-xs text-red-500">{errors.amount.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="categoryId">Categoría</Label>
               <Select
@@ -199,7 +199,7 @@ export function MovementForm({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
                 <Label htmlFor="accountId">{watchType === 'transfer' ? 'Cuenta origen' : 'Cuenta'}</Label>
               <Select value={watch('accountId')} onValueChange={(v) => setValue('accountId', v)}>

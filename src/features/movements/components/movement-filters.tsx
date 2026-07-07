@@ -1,5 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -49,45 +50,54 @@ export function MovementFilters({
         />
       </div>
 
-      <Select
-        value={typeFilter}
-        onValueChange={(v: MovementType | 'all') => onTypeFilterChange(v)}
-      >
-        <SelectTrigger className="w-[130px] h-9">
-          <SelectValue placeholder="Tipo" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="expense">Gastos</SelectItem>
-          <SelectItem value="income">Ingresos</SelectItem>
-          <SelectItem value="transfer">Transferencias</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="space-y-1">
+        <Label className="text-xs text-muted-foreground">Tipo</Label>
+        <Select
+          value={typeFilter}
+          onValueChange={(v: MovementType | 'all') => onTypeFilterChange(v)}
+        >
+          <SelectTrigger className="w-[130px] h-8 sm:h-9">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="expense">Gastos</SelectItem>
+            <SelectItem value="income">Ingresos</SelectItem>
+            <SelectItem value="transfer">Transferencias</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Select value={statusFilter} onValueChange={(v: MovementStatus | 'all') => onStatusFilterChange(v)}>
-        <SelectTrigger className="w-[140px] h-9">
-          <SelectValue placeholder="Estado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="confirmed">Confirmado</SelectItem>
-          <SelectItem value="pending">Pendiente</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="space-y-1">
+        <Label className="text-xs text-muted-foreground">Estado</Label>
+        <Select value={statusFilter} onValueChange={(v: MovementStatus | 'all') => onStatusFilterChange(v)}>
+          <SelectTrigger className="w-[140px] h-8 sm:h-9">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="confirmed">Confirmado</SelectItem>
+            <SelectItem value="pending">Pendiente</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Select value={categoryFilter} onValueChange={(v: string) => onCategoryFilterChange(v)}>
-        <SelectTrigger className="w-[160px] h-9">
-          <SelectValue placeholder="Categoría" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todas</SelectItem>
-          {categories.map((cat) => (
-            <SelectItem key={cat.id} value={cat.id}>
-              {cat.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="space-y-1">
+        <Label className="text-xs text-muted-foreground">Categoría</Label>
+        <Select value={categoryFilter} onValueChange={(v: string) => onCategoryFilterChange(v)}>
+          <SelectTrigger className="w-[160px] h-8 sm:h-9">
+            <SelectValue placeholder="Categoría" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {hasFilters && (
         <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onClear}>

@@ -114,7 +114,7 @@ export function CreditCardForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="limit">Límite</Label>
               <Input
@@ -141,7 +141,7 @@ export function CreditCardForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="closingDay">Día de cierre</Label>
               <Input
