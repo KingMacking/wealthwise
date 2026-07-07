@@ -15,8 +15,10 @@ import type * as creditCards from "../creditCards.js";
 import type * as debug from "../debug.js";
 import type * as exportImport from "../exportImport.js";
 import type * as goals from "../goals.js";
+import type * as hasData from "../hasData.js";
 import type * as movements from "../movements.js";
 import type * as paymentMethods from "../paymentMethods.js";
+import type * as seed from "../seed.js";
 import type * as userId from "../userId.js";
 
 import type {
@@ -33,8 +35,10 @@ declare const fullApi: ApiFromModules<{
   debug: typeof debug;
   exportImport: typeof exportImport;
   goals: typeof goals;
+  hasData: typeof hasData;
   movements: typeof movements;
   paymentMethods: typeof paymentMethods;
+  seed: typeof seed;
   userId: typeof userId;
 }>;
 

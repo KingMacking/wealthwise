@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/features/theme'
 import { AppShell } from '@/layouts'
 import { AuthGuard } from '@/components/auth-guard'
 import { convex } from '@/lib/convex'
+import { useSeedOnFirstLogin } from '@/hooks/useSeedOnFirstLogin'
 import { Loader2 } from 'lucide-react'
 
 const DashboardPage = lazy(() => import('@/pages/dashboard'))
@@ -33,9 +34,16 @@ function PageLoader() {
   )
 }
 
+function SeedInitializer() {
+  useSeedOnFirstLogin()
+  return null
+}
+
 function AppRoutes() {
   return (
-    <Routes>
+    <>
+      <SeedInitializer />
+      <Routes>
       <Route path="/auth" element={
         <Suspense fallback={<PageLoader />}><AuthPage /></Suspense>
       } />
@@ -75,6 +83,7 @@ function AppRoutes() {
         } />
       </Route>
     </Routes>
+    </>
   )
 }
 
