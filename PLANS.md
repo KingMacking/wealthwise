@@ -16,9 +16,9 @@ Selector de país (ARG / USA) que afecta:
 - Cálculo de impuestos (PAIS, ganancias, etc. para ARG)
 - Suscripciones en USD mostradas en ARS con impuestos
 
-## Dashboard personalizable
+## Dashboard personalizable ✔
 
-Selector de qué secciones mostrar en el dashboard. Hoy muestra: resumen de cuentas, ingresos/gastos del mes, resultado del mes, presupuestos, tarjetas, objetivos, movimientos recientes. Poder activar/desactivar cada widget según preferencia del usuario.
+Cada widget de "Tarjetas de resumen" (8 opciones) e "Indicadores" (9 opciones) se puede prender/apagar y reordenar por drag & drop. Además se pueden ocultar las secciones de "Gráficos" y "Movimientos recientes".
 
 ## Registro vía WhatsApp Bot
 

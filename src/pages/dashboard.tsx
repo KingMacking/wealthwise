@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { TrendingUp, TrendingDown, Wallet, DollarSign, Target, Calendar } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import {
   useDashboard,
   StatCard,
-  Indicators,
   DailyEvolutionChart,
   ExpensesByCategoryChart,
   IncomeVsExpensesChart,
@@ -13,18 +15,42 @@ import {
   SpendingHeatmap,
   RecentMovements,
   DashboardSkeleton,
-  DashboardCustomize,
+  DashboardCustomize as DashboardCustomizeDialog,
 } from '@/features/dashboard'
+import { getStatCardDef, getIndicatorDef } from '@/features/dashboard/widgets'
 import { useDashboardPreferences } from '@/hooks/useDashboardPreferences'
-import { formatCurrency } from '@/utils/format'
+import type { DashboardData } from '@/features/dashboard/hooks/use-dashboard'
+import type { IndicatorDef } from '@/features/dashboard/widgets'
+
+function IndicatorCard({ def, data }: { def: IndicatorDef; data: DashboardData }) {
+  return (
+    <Card className="transition-all duration-200 hover:shadow-md">
+      <CardContent className="flex items-start gap-3 p-4">
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${def.color}`}>
+          <def.icon className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider truncate">{def.label}</p>
+          <p className="text-base font-semibold mt-0.5">{def.getValue(data)}</p>
+          {def.getSub(data) && (
+            <p className="text-[11px] text-muted-foreground truncate">{def.getSub(data)}</p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function DashboardPage() {
   const data = useDashboard()
-  const { prefs, toggle } = useDashboardPreferences()
+  const { prefs, toggleWidget, toggleSection, reorderWidgets } = useDashboardPreferences()
+  const [customizeOpen, setCustomizeOpen] = useState(false)
 
   if (data.isLoading) return <DashboardSkeleton />
 
   const now = new Date()
+  const enabledStatCards = prefs.statCards.filter((w) => w.enabled)
+  const enabledIndicators = prefs.indicators.filter((w) => w.enabled)
 
   return (
     <div className="space-y-6">
@@ -35,60 +61,37 @@ export default function DashboardPage() {
             {format(now, "MMMM yyyy", { locale: es })}
           </p>
         </div>
-        <DashboardCustomize prefs={prefs} toggle={toggle} />
+        <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setCustomizeOpen(true)}>
+          <SlidersHorizontal className="h-4 w-4" />
+        </Button>
       </div>
 
-      {prefs.statsCards && (
+      {enabledStatCards.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <StatCard
-            title="Dinero Inicial"
-            value={formatCurrency(data.totalBalance - data.netBalance)}
-            icon={Calendar}
-            trend="neutral"
-          />
-          <StatCard
-            title="Ingresos"
-            value={formatCurrency(data.currentMonthIncomes)}
-            icon={TrendingUp}
-            trend="up"
-          />
-          <StatCard
-            title="Gastos"
-            value={formatCurrency(data.currentMonthExpenses)}
-            icon={TrendingDown}
-            trend="down"
-          />
-          <StatCard
-            title="Balance Actual"
-            value={formatCurrency(data.totalBalance)}
-            icon={Wallet}
-            trend="neutral"
-          />
-          <StatCard
-            title="Resultado del Mes"
-            value={formatCurrency(data.netBalance)}
-            icon={DollarSign}
-            trend={data.netBalance >= 0 ? 'up' : 'down'}
-          />
-          <StatCard
-            title="Ahorro Generado"
-            value={`${data.savingsRate.toFixed(0)}%`}
-            icon={Target}
-            trend={data.savingsRate >= 10 ? 'up' : 'down'}
-          />
+          {enabledStatCards.map(({ id }) => {
+            const def = getStatCardDef(id)
+            if (!def) return null
+            return (
+              <StatCard
+                key={id}
+                title={def.label}
+                value={def.getValue(data)}
+                icon={def.icon}
+                trend={def.getTrend(data)}
+              />
+            )
+          })}
         </div>
       )}
 
-      {prefs.indicators && (
-        <Indicators
-          avgDailyExpense={data.avgDailyExpense}
-          highestExpense={data.highestExpense}
-          lowestExpense={data.lowestExpense}
-          movementCount={data.movementCount}
-          expenseCount={data.expenseCount}
-          avgTicket={data.avgTicket}
-          topCategory={data.topCategory}
-        />
+      {enabledIndicators.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {enabledIndicators.map(({ id }) => {
+            const def = getIndicatorDef(id)
+            if (!def) return null
+            return <IndicatorCard key={id} def={def} data={data} />
+          })}
+        </div>
       )}
 
       {prefs.charts && (
@@ -109,6 +112,14 @@ export default function DashboardPage() {
           isLoading={data.isLoading}
         />
       )}
+
+      <DashboardCustomizeDialog
+        open={customizeOpen}
+        onClose={() => setCustomizeOpen(false)}
+        prefs={prefs}
+        toggleWidget={toggleWidget}
+        reorderWidgets={reorderWidgets}
+      />
     </div>
   )
 }

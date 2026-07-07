@@ -44,6 +44,11 @@ export interface DashboardData {
   netBalance: number
   savingsRate: number
   totalBalance: number
+  accountCount: number
+  pendingExpenses: number
+  incomeCount: number
+  topPaymentMethod: { name: string; total: number } | null
+  savingsProgress: number
   dailyTotals: DailyTotal[]
   categoryTotals: CategoryTotal[]
   paymentMethodTotals: PaymentMethodTotal[]
@@ -74,8 +79,9 @@ export function useDashboard(): DashboardData {
   const categories = useQuery(api.categories.getAll) ?? []
   const accounts = useQuery(api.accounts.getAll) ?? []
   const paymentMethods = useQuery(api.paymentMethods.getAll) ?? []
+  const goals = useQuery(api.goals.getAll) ?? []
 
-  const isLoading = currentMovements === undefined || categories === undefined || accounts === undefined
+  const isLoading = currentMovements === undefined || categories === undefined || accounts === undefined || goals === undefined
 
   const movements = currentMovements
   const expenses = movements.filter((m) => m.type === 'expense')
@@ -85,6 +91,12 @@ export function useDashboard(): DashboardData {
   const net = totalIncomes - totalExpenses
   const totalBalance = accounts.reduce((s, a) => s + a.balance, 0)
   const rate = totalIncomes > 0 ? (net / totalIncomes) * 100 : 0
+  const accountCount = accounts.length
+  const pendingExpenses = expenses.filter((m) => m.status === 'pending').reduce((s, m) => s + m.amount, 0)
+  const incomeCount = incomes.length
+  const savingsProgress = goals.length > 0
+    ? Math.round(goals.reduce((s, g) => s + (g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0), 0) / goals.length)
+    : 0
 
   const daysInMonth = eachDayOfInterval({ start: startOfMonth(now), end: now < endOfMonth(now) ? now : endOfMonth(now) })
   const dailyTotals: DailyTotal[] = daysInMonth.map((day) => {
@@ -128,6 +140,10 @@ export function useDashboard(): DashboardData {
     .filter((p) => p.total > 0)
     .sort((a, b) => b.total - a.total)
 
+  const topPaymentMethod = paymentMethodTotals[0]
+    ? { name: paymentMethodTotals[0].paymentMethodName, total: paymentMethodTotals[0].total }
+    : null
+
   function getMonthData(movs: typeof movements, offset: number): MonthlyComparison {
     const date = subMonths(now, offset)
     return {
@@ -159,6 +175,11 @@ export function useDashboard(): DashboardData {
     netBalance: net,
     savingsRate: rate,
     totalBalance,
+    accountCount,
+    pendingExpenses,
+    incomeCount,
+    topPaymentMethod,
+    savingsProgress,
     dailyTotals,
     categoryTotals,
     paymentMethodTotals,

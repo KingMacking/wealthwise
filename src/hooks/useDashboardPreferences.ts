@@ -1,32 +1,61 @@
 import { useState, useCallback, useEffect } from 'react'
+import { STAT_CARD_IDS, INDICATOR_IDS } from '@/features/dashboard/widgets'
 
-export type DashboardSection = 'statsCards' | 'indicators' | 'charts' | 'recentMovements'
+export type DashboardSection = 'charts' | 'recentMovements'
+
+export interface WidgetState {
+  id: string
+  enabled: boolean
+}
 
 export interface DashboardPreferences {
-  statsCards: boolean
-  indicators: boolean
+  statCards: WidgetState[]
+  indicators: WidgetState[]
   charts: boolean
   recentMovements: boolean
 }
 
 const STORAGE_KEY = 'wealthwise-dashboard-preferences'
 
-const defaults: DashboardPreferences = {
-  statsCards: true,
-  indicators: true,
-  charts: true,
-  recentMovements: true,
+function buildDefaultWidgets(ids: string[], enabled: boolean): WidgetState[] {
+  return ids.map((id) => ({ id, enabled }))
+}
+
+function getDefaults(): DashboardPreferences {
+  return {
+    statCards: buildDefaultWidgets(STAT_CARD_IDS, true),
+    indicators: buildDefaultWidgets(INDICATOR_IDS, true),
+    charts: true,
+    recentMovements: true,
+  }
+}
+
+function isOldFormat(value: unknown): boolean {
+  return typeof value === 'boolean'
 }
 
 function loadPreferences(): DashboardPreferences {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      return { ...defaults, ...parsed }
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return getDefaults()
+
+    const parsed = JSON.parse(raw)
+
+    if (isOldFormat(parsed.statCards)) {
+      const statCards = buildDefaultWidgets(STAT_CARD_IDS, parsed.statCards as boolean)
+      const indicators = buildDefaultWidgets(INDICATOR_IDS, parsed.indicators as boolean)
+      return {
+        statCards,
+        indicators,
+        charts: parsed.charts ?? true,
+        recentMovements: parsed.recentMovements ?? true,
+      }
     }
-  } catch {}
-  return defaults
+
+    return parsed as DashboardPreferences
+  } catch {
+    return getDefaults()
+  }
 }
 
 export function useDashboardPreferences() {
@@ -36,12 +65,20 @@ export function useDashboardPreferences() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs))
   }, [prefs])
 
-  const toggle = useCallback((section: DashboardSection) => {
+  const toggleSection = useCallback((section: DashboardSection) => {
     setPrefs((prev) => ({ ...prev, [section]: !prev[section] }))
   }, [])
 
-  const visibleCount = Object.values(prefs).filter(Boolean).length
-  const allHidden = visibleCount === 0
+  const toggleWidget = useCallback((section: 'statCards' | 'indicators', id: string) => {
+    setPrefs((prev) => ({
+      ...prev,
+      [section]: prev[section].map((w) => (w.id === id ? { ...w, enabled: !w.enabled } : w)),
+    }))
+  }, [])
 
-  return { prefs, toggle, visibleCount, allHidden }
+  const reorderWidgets = useCallback((section: 'statCards' | 'indicators', widgets: WidgetState[]) => {
+    setPrefs((prev) => ({ ...prev, [section]: widgets }))
+  }, [])
+
+  return { prefs, toggleSection, toggleWidget, reorderWidgets }
 }

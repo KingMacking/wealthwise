@@ -1,53 +1,111 @@
-import { SlidersHorizontal } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
+import { GripVertical } from 'lucide-react'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import type { DropResult } from '@hello-pangea/dnd'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
-import type { DashboardPreferences, DashboardSection } from '@/hooks/useDashboardPreferences'
-
-export const DASHBOARD_SECTIONS: { key: DashboardSection; label: string }[] = [
-  { key: 'statsCards', label: 'Tarjetas de resumen' },
-  { key: 'indicators', label: 'Indicadores' },
-  { key: 'charts', label: 'Gráficos' },
-  { key: 'recentMovements', label: 'Movimientos recientes' },
-]
+import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import { STAT_CARD_DEFS, INDICATOR_DEFS, getStatCardDef, getIndicatorDef } from '../widgets'
+import type { DashboardPreferences, WidgetState } from '@/hooks/useDashboardPreferences'
 
 interface DashboardCustomizeProps {
+  open: boolean
+  onClose: () => void
   prefs: DashboardPreferences
-  toggle: (section: DashboardSection) => void
+  toggleWidget: (section: 'statCards' | 'indicators', id: string) => void
+  reorderWidgets: (section: 'statCards' | 'indicators', widgets: WidgetState[]) => void
 }
 
-export function DashboardCustomize({ prefs, toggle }: DashboardCustomizeProps) {
+function WidgetList({
+  section,
+  items,
+  toggleWidget,
+}: {
+  section: 'statCards' | 'indicators'
+  items: WidgetState[]
+  toggleWidget: (section: 'statCards' | 'indicators', id: string) => void
+}) {
+  const sectionTitle = section === 'statCards' ? 'Tarjetas de resumen' : 'Indicadores'
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="h-9 w-9">
-          <SlidersHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>Personalizar dashboard</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <div className="px-2 py-1 space-y-1">
-          {DASHBOARD_SECTIONS.map(({ key, label }) => (
-            <label
-              key={key}
-              className="flex items-center justify-between rounded-sm px-2 py-2 text-sm cursor-pointer hover:bg-accent transition-colors"
-            >
-              {label}
-              <Switch
-                checked={prefs[key]}
-                onCheckedChange={() => toggle(key)}
-              />
-            </label>
-          ))}
+    <div>
+      <h4 className="text-sm font-medium text-muted-foreground mb-2">{sectionTitle}</h4>
+      <Droppable droppableId={section}>
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-1">
+            {items.map((widget, index) => {
+              const def = section === 'statCards'
+                ? getStatCardDef(widget.id)
+                : getIndicatorDef(widget.id)
+              if (!def) return null
+
+              return (
+                <Draggable key={widget.id} draggableId={widget.id} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`flex items-center gap-2 rounded-md px-2 py-2 transition-colors ${
+                        snapshot.isDragging ? 'bg-accent shadow-sm' : 'hover:bg-accent/50'
+                      }`}
+                    >
+                      <span
+                        {...provided.dragHandleProps}
+                        className="flex items-center justify-center w-6 h-6 text-muted-foreground cursor-grab active:cursor-grabbing shrink-0"
+                      >
+                        <GripVertical className="h-4 w-4" />
+                      </span>
+                      <def.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="flex-1 text-sm">{def.label}</span>
+                      <Switch
+                        checked={widget.enabled}
+                        onCheckedChange={() => toggleWidget(section, widget.id)}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              )
+            })}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </div>
+  )
+}
+
+export function DashboardCustomize({ open, onClose, prefs, toggleWidget, reorderWidgets }: DashboardCustomizeProps) {
+  function handleDragEnd(result: DropResult) {
+    if (!result.destination) return
+    if (result.source.index === result.destination.index) return
+
+    const section = result.destination.droppableId as 'statCards' | 'indicators'
+    const items = Array.from(prefs[section])
+    const [removed] = items.splice(result.source.index, 1)
+    items.splice(result.destination.index, 0, removed)
+    reorderWidgets(section, items)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Personalizar dashboard</DialogTitle>
+          <DialogDescription>
+            Arrastrá para reordenar. Usá los switches para mostrar u ocultar cada elemento.
+          </DialogDescription>
+        </DialogHeader>
+
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <WidgetList section="statCards" items={prefs.statCards} toggleWidget={toggleWidget} />
+          <Separator className="my-4" />
+          <WidgetList section="indicators" items={prefs.indicators} toggleWidget={toggleWidget} />
+        </DragDropContext>
+
+        <div className="flex justify-end pt-2">
+          <Button variant="outline" onClick={onClose}>Cerrar</Button>
         </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </DialogContent>
+    </Dialog>
   )
 }
