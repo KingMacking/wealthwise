@@ -41,8 +41,8 @@ function loadPreferences(): DashboardPreferences {
 
     const parsed = JSON.parse(raw)
 
-    if (isOldFormat(parsed.statCards)) {
-      const statCards = buildDefaultWidgets(STAT_CARD_IDS, parsed.statCards as boolean)
+    if (isOldFormat(parsed.statsCards)) {
+      const statCards = buildDefaultWidgets(STAT_CARD_IDS, parsed.statsCards as boolean)
       const indicators = buildDefaultWidgets(INDICATOR_IDS, parsed.indicators as boolean)
       return {
         statCards,
@@ -52,7 +52,11 @@ function loadPreferences(): DashboardPreferences {
       }
     }
 
-    return parsed as DashboardPreferences
+    if (Array.isArray(parsed.statCards) && Array.isArray(parsed.indicators)) {
+      return parsed as DashboardPreferences
+    }
+
+    return getDefaults()
   } catch {
     return getDefaults()
   }
